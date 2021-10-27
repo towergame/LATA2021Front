@@ -263,6 +263,7 @@ class App extends React.Component<Propane, any> {
 
 	updateThing() {
 		if (this.state.autoHour) {
+			let _ = this.state.hour + 1 > 23 ? (this.state.date as Date).getDate() + 1 > 31 ? (this.state.date as Date).setDate(1) : (this.state.date as Date).setDate((this.state.date as Date).getDate() + 1) : this.state.date;
 			this.setState({
 				date: this.state.date,
 				hour: this.state.hour + 1 > 23 ? 0 : this.state.hour + 1,
