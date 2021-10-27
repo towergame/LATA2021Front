@@ -151,7 +151,8 @@ class App extends React.Component<Propane, any> {
 		this.lineMap.forEach((v, k) => {
 			if (k !== id) {
 				v.setStyle({
-					color: this.changeLight(this.lineMap.get(k)!.options.color!, -2)
+					color: this.changeLight(this.lineMap.get(k)!.options.color!, -2),
+					opacity: 0.1
 				});
 			}
 		});
@@ -161,7 +162,8 @@ class App extends React.Component<Propane, any> {
 		this.lineMap.forEach((v, k) => {
 			if (k !== id) {
 				v.setStyle({
-					color: this.changeLight(this.lineMap.get(k)!.options.color!, 2)
+					color: this.changeLight(this.lineMap.get(k)!.options.color!, 2),
+					opacity: 0.5
 				});
 			}
 		});
