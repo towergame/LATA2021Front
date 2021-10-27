@@ -168,6 +168,11 @@ class App extends React.Component<Propane, any> {
 					color: this.changeLight(this.lineMap.get(k)!.options.color!, -2),
 					opacity: 0.1
 				});
+			} else {
+				v.setStyle({
+					color: this.changeLight(this.lineMap.get(k)!.options.color!, 2),
+					opacity: 1
+				});
 			}
 		});
 	}
@@ -189,6 +194,11 @@ class App extends React.Component<Propane, any> {
 			if (k !== id) {
 				v.setStyle({
 					color: this.changeLight(this.lineMap.get(k)!.options.color!, 2),
+					opacity: 0.5
+				});
+			} else {
+				v.setStyle({
+					color: this.changeLight(this.lineMap.get(k)!.options.color!, -2),
 					opacity: 0.5
 				});
 			}
