@@ -138,7 +138,9 @@ class App extends React.Component<Propane, any> {
 							iconSize: new L.Point(32, 32),
 							color: this.getColour(a.relativeActivity)
 						})
-					}).bindTooltip("Passengers: " + a.passengers).addTo(this.markerGroup);
+					})
+						// .bindTooltip("Passengers: " + a.passengers)
+						.addTo(this.markerGroup);
 				});
 				return "swag";
 			}).then(a => {
@@ -351,15 +353,18 @@ class App extends React.Component<Propane, any> {
 						this.setUpRoutes();
 					}} />
 					<h1 id="time">{this.state.hour}:00</h1>
-					<input type="checkbox" id="autoHour" value={this.state.autoHour} onChange={(e) => {
-						this.setState({
-							date: this.state.date,
-							hour: this.state.hour,
-							autoHour: e.target.checked,
-							currMenu: this.state.currMenu,
-							currSelect: this.state.currSelect
-						});
-					}} />
+					<div className="autoHourDiv">
+						<input type="checkbox" id="autoHour" value={this.state.autoHour} onChange={(e) => {
+							this.setState({
+								date: this.state.date,
+								hour: this.state.hour,
+								autoHour: e.target.checked,
+								currMenu: this.state.currMenu,
+								currSelect: this.state.currSelect
+							});
+						}} />
+						<label htmlFor="autoHour"></label>
+					</div>
 					<input type="range" id="selectHour" min={0} max={23} value={this.state.hour} onChange={(e) => {
 						this.setState({
 							date: this.state.date,
