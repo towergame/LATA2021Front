@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import L, { LatLng, Polyline, LayerGroup } from "leaflet";
+import L, { LatLng, Polyline, LayerGroup, Point, LatLngBounds } from "leaflet";
 
 interface Propane {
 }
@@ -53,7 +53,7 @@ class App extends React.Component<Propane, any> {
 
 	setUpRoutes() {
 		var requestInit: RequestInit = {
-			// mode: "cors",
+			mode: "cors",
 			method: "GET"
 		};
 		fetch(`https://busify.herokuapp.com/api/activity/routes?month=${(this.state.date as Date).getMonth() + 1}&day=${(this.state.date as Date).getDate()}&hour=${this.state.hour}&client=true&simpleShape=true`, requestInit)
@@ -63,7 +63,7 @@ class App extends React.Component<Propane, any> {
 				this.tram.clearLayers();
 				this.trolleybus.clearLayers();
 				response.forEach((a) => {
-					let id = a.routeId;
+					let id = a.id;
 					let passengers = a.relativeActivity;
 					let name = a.longName;
 					let num = a.shortName;
@@ -75,25 +75,38 @@ class App extends React.Component<Propane, any> {
 			});
 	}
 
-	paintSegments(segmentData: Map<LatLng[], number>) {
-		// let polyline = L.polyline(shape, { color: this.getColour(activity), weight: 10, opacity: 0.5 })
-		// 	.bindTooltip(name, { sticky: true });
-		// polyline
-		// 	.addEventListener("mouseover", () => { this.onRouteHoverOn(id) })
-		// 	.addEventListener("mouseout", () => { this.onRouteHoverOff(id) });
-		// this.lineMap.set(id, polyline);
-		// switch (type) {
-		// 	case 0:
-		// 		this.bus.addLayer(polyline);
-		// 		break;
-		// 	case 1:
-		// 		this.trolleybus.addLayer(polyline);
-		// 		break;
-		// 	case 2:
-		// 		this.tram.addLayer(polyline);
-		// 		break;
-		// }
+	generateStopRoute(routeId: string, routePath: Polyline) {
+		let stopPoints: LatLng[] = [];
+		let amountsPerStop: number[] = [];
+		var requestInit: RequestInit = {
+			mode: "cors",
+			method: "GET"
+		};
+		fetch(`http://busify.herokuapp.com/api/activity/stops?month=${(this.state.date as Date).getMonth() + 1}&day=${(this.state.date as Date).getDate()}&hour=${this.state.hour}&client=true&route=${routeId}`, requestInit)
+			.then((response) => response.json())
+			.then((response: any[]) => {
+				response.forEach((a) => {
+					stopPoints.push(a.coord as LatLng);
+					amountsPerStop.push(a.relativeActivity);
+				});
+				return "swag";
+			}).then(a => {
+				let endRes = new Map<LatLng[], number>();
+				let lngs = routePath.getLatLngs() as LatLng[];
+				for (let x = 0; x < stopPoints.length - 1; x++) {
+					let point1 = this.map!.layerPointToLatLng(routePath.closestLayerPoint(this.map!.latLngToLayerPoint(stopPoints[x + 1])));
+					let point2 = this.map!.layerPointToLatLng(routePath.closestLayerPoint(this.map!.latLngToLayerPoint(stopPoints[x + 1])));
+					let cool: LatLng[] = [];
+					for (let y = lngs.indexOf([...lngs].sort((a, b) => { return point1.distanceTo(a) - point1.distanceTo(b) })[0]); y < lngs.indexOf([...lngs].sort((a, b) => { return point2.distanceTo(a) - point2.distanceTo(b) })[0]) + 1; y++) {
+						cool.push(lngs[y]);
+					}
+					endRes.set(cool, amountsPerStop[x]);
+				}
+				this.paintSegments(endRes);
+			});
+	}
 
+	paintSegments(segmentData: Map<LatLng[], number>) {
 		segmentData.forEach((v, k) => {
 			let polyline = L.polyline(k, { color: this.getColour(v), weight: 10, opacity: 0.5 });
 			polyline.addTo(this.map!);
@@ -144,6 +157,7 @@ class App extends React.Component<Propane, any> {
 		polyline
 			.addEventListener("mouseover", () => { this.onRouteHoverOn(id) })
 			.addEventListener("mouseout", () => { this.onRouteHoverOff(id) });
+		//.addEventListener("click", () => { this.generateStopRoute(id, this.lineMap.get(id)!) });
 		this.lineMap.set(id, polyline);
 		switch (type) {
 			case 0:
