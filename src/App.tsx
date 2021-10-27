@@ -144,7 +144,8 @@ class App extends React.Component<Propane, any> {
 	}
 
 	getColour(between: number) {
-		return "rgb(" + (255 * between) + "," + (255 * (1 - between)) + ",0)";
+		let act = Math.log(100 * between + 1) / Math.log(100);
+		return "rgb(" + (255 * act) + "," + (255 * (1 - act)) + ",0)";
 	}
 
 	changeLight(colour: string, amount: number) {
