@@ -56,7 +56,7 @@ class App extends React.Component<Propane, any> {
 			// mode: "cors",
 			method: "GET"
 		};
-		fetch(`http://busify.herokuapp.com/api/activity/routes?month=${(this.state.date as Date).getMonth() + 1}&day=${(this.state.date as Date).getDate()}&hour=${this.state.hour}&client=true&simpleShape=true`, requestInit)
+		fetch(`https://busify.herokuapp.com/api/activity/routes?month=${(this.state.date as Date).getMonth() + 1}&day=${(this.state.date as Date).getDate()}&hour=${this.state.hour}&client=true&simpleShape=true`, requestInit)
 			.then((response) => response.json())
 			.then((response: any[]) => {
 				this.bus.clearLayers();
