@@ -30,7 +30,8 @@ class App extends React.Component<Propane, any> {
 			date: new Date("2021-01-01"),
 			hour: new Date().getHours(),
 			autoHour: false,
-			currMenu: OpenableMenus.NONE
+			currMenu: OpenableMenus.NONE,
+			currSelect: ""
 		};
 		setInterval(this.updateThing.bind(this), 1500);
 	}
@@ -88,6 +89,10 @@ class App extends React.Component<Propane, any> {
 			mode: "cors",
 			method: "GET"
 		};
+		if (this.state.currSelect !== "") {
+			this.clearer();
+			return;
+		}
 		fetch(`https://busify.herokuapp.com/api/activity/stops?month=${(this.state.date as Date).getMonth() + 1}&day=${(this.state.date as Date).getDate()}&hour=${this.state.hour}&client=true&route=${routeId}`, requestInit)
 			.then((response) => response.json())
 			.then((response: any[]) => {
@@ -95,6 +100,14 @@ class App extends React.Component<Propane, any> {
 				response.forEach((a) => {
 					// stopPoints.push(a.coord as LatLng);
 					// amountsPerStop.push(a.relativeActivity);
+					this.setState({
+						date: this.state.date,
+						hour: this.state.hour,
+						autoHour: this.state.autoHour,
+						currMenu: this.state.currMenu,
+						currSelect: routeId
+					});
+					//this.forceDarken(routeId);
 					let marker = new Marker(a.coord, {
 						icon: new SVGIcon({
 							svgLink: MarkerSVG,
@@ -131,7 +144,7 @@ class App extends React.Component<Propane, any> {
 	}
 
 	getColour(between: number) {
-		return "rgb(" + (255 * (1 - between)) + "," + (255 * between) + ",0)";
+		return "rgb(" + (255 * between) + "," + (255 * (1 - between)) + ",0)";
 	}
 
 	changeLight(colour: string, amount: number) {
@@ -148,6 +161,18 @@ class App extends React.Component<Propane, any> {
 	}
 
 	onRouteHoverOn(id: string) {
+		// if (this.state.currSelect !== "") return;
+		this.lineMap.forEach((v, k) => {
+			if (k !== id) {
+				v.setStyle({
+					color: this.changeLight(this.lineMap.get(k)!.options.color!, -2),
+					opacity: 0.1
+				});
+			}
+		});
+	}
+
+	forceDarken(id: string) {
 		this.lineMap.forEach((v, k) => {
 			if (k !== id) {
 				v.setStyle({
@@ -159,6 +184,18 @@ class App extends React.Component<Propane, any> {
 	}
 
 	onRouteHoverOff(id: string) {
+		// if (this.state.currSelect !== "") return;
+		this.lineMap.forEach((v, k) => {
+			if (k !== id) {
+				v.setStyle({
+					color: this.changeLight(this.lineMap.get(k)!.options.color!, 2),
+					opacity: 0.5
+				});
+			}
+		});
+	}
+
+	forceUndarken(id: string) {
 		this.lineMap.forEach((v, k) => {
 			if (k !== id) {
 				v.setStyle({
@@ -196,7 +233,8 @@ class App extends React.Component<Propane, any> {
 				date: this.state.date,
 				hour: this.state.hour + 1 > 23 ? 0 : this.state.hour + 1,
 				autoHour: this.state.autoHour,
-				currMenu: this.state.currMenu
+				currMenu: this.state.currMenu,
+				currSelect: this.state.currSelect
 			});
 			this.setUpRoutes();
 		}
@@ -236,16 +274,30 @@ class App extends React.Component<Propane, any> {
 				date: this.state.date,
 				hour: this.state.hour,
 				autoHour: this.state.autoHour,
-				currMenu: menuType
+				currMenu: menuType,
+				currSelect: this.state.currSelect
 			});
 		} else {
 			this.setState({
 				date: this.state.date,
 				hour: this.state.hour,
 				autoHour: this.state.autoHour,
-				currMenu: OpenableMenus.NONE
+				currMenu: OpenableMenus.NONE,
+				currSelect: this.state.currSelect
 			});
 		}
+	}
+
+	clearer() {
+		// this.forceUndarken(this.state.currSelect);
+		this.setState({
+			date: this.state.date,
+			hour: this.state.hour,
+			autoHour: this.state.autoHour,
+			currMenu: this.state.currMenu,
+			currSelect: ""
+		});
+		this.markerGroup.clearLayers();
 	}
 
 	render() {
@@ -258,7 +310,8 @@ class App extends React.Component<Propane, any> {
 							date: new Date(e.target.value!),
 							hour: this.state.hour,
 							autoHour: this.state.autoHour,
-							currMenu: this.state.currMenu
+							currMenu: this.state.currMenu,
+							currSelect: this.state.currSelect
 						});
 						this.setUpRoutes();
 					}} />
@@ -268,7 +321,8 @@ class App extends React.Component<Propane, any> {
 							date: this.state.date,
 							hour: this.state.hour,
 							autoHour: e.target.checked,
-							currMenu: this.state.currMenu
+							currMenu: this.state.currMenu,
+							currSelect: this.state.currSelect
 						});
 					}} />
 					<input type="range" id="selectHour" min={0} max={23} value={this.state.hour} onChange={(e) => {
@@ -276,7 +330,8 @@ class App extends React.Component<Propane, any> {
 							date: this.state.date,
 							hour: e.target.valueAsNumber,
 							autoHour: this.state.autoHour,
-							currMenu: this.state.currMenu
+							currMenu: this.state.currMenu,
+							currSelect: this.state.currSelect
 						});
 						this.setUpRoutes();
 					}} />
@@ -284,17 +339,17 @@ class App extends React.Component<Propane, any> {
 						Bus <input type="checkbox" onChange={(e) => {
 							if (e.target.checked) this.bus.addTo(this.map!);
 							else this.bus.removeFrom(this.map!);
-							this.markerGroup.clearLayers();
+							this.clearer();
 						}} id="busCheck" /><br />
 						Tram <input type="checkbox" onChange={(e) => {
 							if (e.target.checked) this.tram.addTo(this.map!);
 							else this.tram.removeFrom(this.map!);
-							this.markerGroup.clearLayers();
+							this.clearer();
 						}} /><br />
 						Trolleybus <input type="checkbox" onChange={(e) => {
 							if (e.target.checked) this.trolleybus.addTo(this.map!);
 							else this.trolleybus.removeFrom(this.map!);
-							this.markerGroup.clearLayers();
+							this.clearer();
 						}} /><br />
 					</div>
 					<div id="routeList" className="listClose">
