@@ -53,6 +53,8 @@ class App extends React.Component<Propane, any> {
 		Jawg_Dark.addTo(this.map);
 		this.markerGroup.addTo(this.map);
 		this.setUpRoutes();
+		this.bus.addTo(this.map!);
+		(document.getElementById("busCheck")! as HTMLInputElement).checked = true;
 	}
 
 	setUpRoutes() {
@@ -281,7 +283,7 @@ class App extends React.Component<Propane, any> {
 							if (e.target.checked) this.bus.addTo(this.map!);
 							else this.bus.removeFrom(this.map!);
 							this.markerGroup.clearLayers();
-						}} /><br />
+						}} id="busCheck" /><br />
 						Tram <input type="checkbox" onChange={(e) => {
 							if (e.target.checked) this.tram.addTo(this.map!);
 							else this.tram.removeFrom(this.map!);
