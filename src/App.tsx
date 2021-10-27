@@ -1,6 +1,8 @@
 import React from 'react';
 import './App.css';
-import L, { LatLng, Polyline, LayerGroup, Point, LatLngBounds } from "leaflet";
+import L, { LatLng, Polyline, LayerGroup, Point, LatLngBounds, Marker } from "leaflet";
+import { SVGIcon } from "./SVGIcon";
+import MarkerSVG from "./marker.svg";
 
 interface Propane {
 }
@@ -19,6 +21,7 @@ class App extends React.Component<Propane, any> {
 	bus: LayerGroup = new LayerGroup();
 	tram: LayerGroup = new LayerGroup();
 	trolleybus: LayerGroup = new LayerGroup();
+	markerGroup: LayerGroup = new LayerGroup();
 
 	constructor(props: Propane) {
 		super(props);
@@ -48,6 +51,7 @@ class App extends React.Component<Propane, any> {
 			accessToken: 'iKbn4srGwDR8o2IxGUP8skNZ8T7AVxUrCiBvpwxYzLLRtSGXGhlY9W20wBr182yM'
 		});
 		Jawg_Dark.addTo(this.map);
+		this.markerGroup.addTo(this.map);
 		this.setUpRoutes();
 	}
 
@@ -85,24 +89,34 @@ class App extends React.Component<Propane, any> {
 		fetch(`http://busify.herokuapp.com/api/activity/stops?month=${(this.state.date as Date).getMonth() + 1}&day=${(this.state.date as Date).getDate()}&hour=${this.state.hour}&client=true&route=${routeId}`, requestInit)
 			.then((response) => response.json())
 			.then((response: any[]) => {
+				this.markerGroup.clearLayers();
 				response.forEach((a) => {
-					stopPoints.push(a.coord as LatLng);
-					amountsPerStop.push(a.relativeActivity);
+					// stopPoints.push(a.coord as LatLng);
+					// amountsPerStop.push(a.relativeActivity);
+					let marker = new Marker(a.coord, {
+						icon: new SVGIcon({
+							svgLink: MarkerSVG,
+							iconAnchor: [16, 16],
+							iconSize: new L.Point(32, 32),
+							color: this.getColour(a.relativeActivity)
+						})
+					}).bindTooltip("Passengers: " + a.passengers).addTo(this.markerGroup);
 				});
 				return "swag";
 			}).then(a => {
-				let endRes = new Map<LatLng[], number>();
-				let lngs = routePath.getLatLngs() as LatLng[];
-				for (let x = 0; x < stopPoints.length - 1; x++) {
-					let point1 = this.map!.layerPointToLatLng(routePath.closestLayerPoint(this.map!.latLngToLayerPoint(stopPoints[x + 1])));
-					let point2 = this.map!.layerPointToLatLng(routePath.closestLayerPoint(this.map!.latLngToLayerPoint(stopPoints[x + 1])));
-					let cool: LatLng[] = [];
-					for (let y = lngs.indexOf([...lngs].sort((a, b) => { return point1.distanceTo(a) - point1.distanceTo(b) })[0]); y < lngs.indexOf([...lngs].sort((a, b) => { return point2.distanceTo(a) - point2.distanceTo(b) })[0]) + 1; y++) {
-						cool.push(lngs[y]);
-					}
-					endRes.set(cool, amountsPerStop[x]);
-				}
-				this.paintSegments(endRes);
+				// let endRes = new Map<LatLng[], number>();
+				// let lngs = routePath.getLatLngs() as LatLng[];
+				// for (let x = 0; x < stopPoints.length - 1; x++) {
+				// 	let point1 = this.map!.layerPointToLatLng(routePath.closestLayerPoint(this.map!.latLngToLayerPoint(stopPoints[x])));
+				// 	let point2 = this.map!.layerPointToLatLng(routePath.closestLayerPoint(this.map!.latLngToLayerPoint(stopPoints[x + 1])));
+				// 	let cool: LatLng[] = [];
+				// 	console.table(lngs.indexOf([...lngs].sort((a, b) => { return point1.distanceTo(a) - point1.distanceTo(b) })[0]) - lngs.indexOf([...lngs].sort((a, b) => { return point2.distanceTo(a) - point2.distanceTo(b) })[0]) + 1);
+				// 	for (let y = lngs.indexOf([...lngs].sort((a, b) => { return point1.distanceTo(a) - point1.distanceTo(b) })[0]); y < lngs.indexOf([...lngs].sort((a, b) => { return point2.distanceTo(a) - point2.distanceTo(b) })[0]) + 1; y++) {
+				// 		cool.push(lngs[y]);
+				// 	}
+				// 	endRes.set(cool, amountsPerStop[x]);
+				// }
+				// this.paintSegments(endRes);
 			});
 	}
 
@@ -156,8 +170,8 @@ class App extends React.Component<Propane, any> {
 			.bindTooltip(name, { sticky: true });
 		polyline
 			.addEventListener("mouseover", () => { this.onRouteHoverOn(id) })
-			.addEventListener("mouseout", () => { this.onRouteHoverOff(id) });
-		//.addEventListener("click", () => { this.generateStopRoute(id, this.lineMap.get(id)!) });
+			.addEventListener("mouseout", () => { this.onRouteHoverOff(id) })
+			.addEventListener("click", () => { this.generateStopRoute(id, this.lineMap.get(id)!) });
 		this.lineMap.set(id, polyline);
 		switch (type) {
 			case 0:
@@ -266,14 +280,17 @@ class App extends React.Component<Propane, any> {
 						Bus <input type="checkbox" onChange={(e) => {
 							if (e.target.checked) this.bus.addTo(this.map!);
 							else this.bus.removeFrom(this.map!);
+							this.markerGroup.clearLayers();
 						}} /><br />
 						Tram <input type="checkbox" onChange={(e) => {
 							if (e.target.checked) this.tram.addTo(this.map!);
 							else this.tram.removeFrom(this.map!);
+							this.markerGroup.clearLayers();
 						}} /><br />
 						Trolleybus <input type="checkbox" onChange={(e) => {
 							if (e.target.checked) this.trolleybus.addTo(this.map!);
 							else this.trolleybus.removeFrom(this.map!);
+							this.markerGroup.clearLayers();
 						}} /><br />
 					</div>
 					<div id="routeList" className="listClose">
