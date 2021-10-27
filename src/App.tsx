@@ -18,6 +18,9 @@ enum OpenableMenus {
 class App extends React.Component<Propane, any> {
 	map: L.Map | null = null;
 	lineMap: Map<string, Polyline> = new Map<string, Polyline>();
+	routes: Map<string, LatLng[]> = new Map<string, LatLng[]>();
+	names: Map<string, string[]> = new Map<string, string[]>(); //0 short 1 long
+	types: Map<string, number> = new Map<string, number>();
 	bus: LayerGroup = new LayerGroup();
 	tram: LayerGroup = new LayerGroup();
 	trolleybus: LayerGroup = new LayerGroup();
@@ -33,7 +36,7 @@ class App extends React.Component<Propane, any> {
 			currMenu: OpenableMenus.NONE,
 			currSelect: ""
 		};
-		setInterval(this.updateThing.bind(this), 1500);
+		setInterval(this.updateThing.bind(this), 500);
 	}
 
 	componentDidMount() {
@@ -53,9 +56,28 @@ class App extends React.Component<Propane, any> {
 		});
 		Jawg_Dark.addTo(this.map);
 		this.markerGroup.addTo(this.map);
-		this.setUpRoutes();
+		// this.setUpRoutes();
+		this.cacheRoutes();
 		this.bus.addTo(this.map!);
 		(document.getElementById("busCheck")! as HTMLInputElement).checked = true;
+	}
+
+	cacheRoutes() {
+		var requestInit: RequestInit = {
+			mode: "cors",
+			method: "GET"
+		};
+		fetch(`https://busify.herokuapp.com/api/data/routes?simpleShape=true`, requestInit)
+			.then((response) => response.json())
+			.then((response: any[]) => {
+				response.forEach(a => {
+					this.routes.set(a.routeId, a.shape);
+					this.names.set(a.routeId, [a.shortName, a.longName]);
+					this.types.set(a.routeId, a.type);
+				});
+			}).then(() => {
+				this.setUpRoutes();
+			});
 	}
 
 	setUpRoutes() {
@@ -63,7 +85,7 @@ class App extends React.Component<Propane, any> {
 			mode: "cors",
 			method: "GET"
 		};
-		fetch(`https://busify.herokuapp.com/api/activity/routes?month=${(this.state.date as Date).getMonth() + 1}&day=${(this.state.date as Date).getDate()}&hour=${this.state.hour}&client=true&simpleShape=true`, requestInit)
+		fetch(`https://busify.herokuapp.com/api/activity/routes?month=${(this.state.date as Date).getMonth() + 1}&day=${(this.state.date as Date).getDate()}&hour=${this.state.hour}&simpleShape=true`, requestInit)
 			.then((response) => response.json())
 			.then((response: any[]) => {
 				this.bus.clearLayers();
@@ -72,11 +94,12 @@ class App extends React.Component<Propane, any> {
 				response.forEach((a) => {
 					let id = a.id;
 					let passengers = a.relativeActivity;
-					let name = a.longName;
-					let num = a.shortName;
-					let type = a.type;
-					if (a.shape === undefined) return;
-					let shape = a.shape as LatLng[];
+					if (this.names.get(id) === undefined) return;
+					let name = this.names.get(id)![1];
+					let num = this.names.get(id)![0];
+					let type = this.types.get(id)!;
+					let shape = this.routes.get(id)!;
+					if (shape === undefined) return;
 					this.showRoute(shape, passengers, "(" + num + ") " + name + "<br/>" + a.passengers + " passengers", id, type);
 				});
 			});
