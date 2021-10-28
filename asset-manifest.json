@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/LATA2021Front/static/css/main.f759b142.chunk.css",
-    "main.js": "/LATA2021Front/static/js/main.7da8f3cd.chunk.js",
-    "main.js.map": "/LATA2021Front/static/js/main.7da8f3cd.chunk.js.map",
+    "main.js": "/LATA2021Front/static/js/main.a14d2ad5.chunk.js",
+    "main.js.map": "/LATA2021Front/static/js/main.a14d2ad5.chunk.js.map",
     "runtime-main.js": "/LATA2021Front/static/js/runtime-main.027dc1cc.js",
     "runtime-main.js.map": "/LATA2021Front/static/js/runtime-main.027dc1cc.js.map",
     "static/css/2.da98c186.chunk.css": "/LATA2021Front/static/css/2.da98c186.chunk.css",
@@ -21,6 +21,6 @@
     "static/css/2.da98c186.chunk.css",
     "static/js/2.c779eab7.chunk.js",
     "static/css/main.f759b142.chunk.css",
-    "static/js/main.7da8f3cd.chunk.js"
+    "static/js/main.a14d2ad5.chunk.js"
   ]
 }
