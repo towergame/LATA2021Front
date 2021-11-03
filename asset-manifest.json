@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.css": "/LATA2021Front/static/css/main.c2117fbb.chunk.css",
-    "main.js": "/LATA2021Front/static/js/main.6deb3e8b.chunk.js",
-    "main.js.map": "/LATA2021Front/static/js/main.6deb3e8b.chunk.js.map",
+    "main.css": "/LATA2021Front/static/css/main.e20b23ae.chunk.css",
+    "main.js": "/LATA2021Front/static/js/main.d4130e57.chunk.js",
+    "main.js.map": "/LATA2021Front/static/js/main.d4130e57.chunk.js.map",
     "runtime-main.js": "/LATA2021Front/static/js/runtime-main.027dc1cc.js",
     "runtime-main.js.map": "/LATA2021Front/static/js/runtime-main.027dc1cc.js.map",
     "static/css/2.da98c186.chunk.css": "/LATA2021Front/static/css/2.da98c186.chunk.css",
@@ -14,7 +14,7 @@
     "service-worker.js": "/LATA2021Front/service-worker.js",
     "service-worker.js.map": "/LATA2021Front/service-worker.js.map",
     "static/css/2.da98c186.chunk.css.map": "/LATA2021Front/static/css/2.da98c186.chunk.css.map",
-    "static/css/main.c2117fbb.chunk.css.map": "/LATA2021Front/static/css/main.c2117fbb.chunk.css.map",
+    "static/css/main.e20b23ae.chunk.css.map": "/LATA2021Front/static/css/main.e20b23ae.chunk.css.map",
     "static/js/2.c779eab7.chunk.js.LICENSE.txt": "/LATA2021Front/static/js/2.c779eab7.chunk.js.LICENSE.txt",
     "static/media/marker.5ef2d77e.svg": "/LATA2021Front/static/media/marker.5ef2d77e.svg"
   },
@@ -22,7 +22,7 @@
     "static/js/runtime-main.027dc1cc.js",
     "static/css/2.da98c186.chunk.css",
     "static/js/2.c779eab7.chunk.js",
-    "static/css/main.c2117fbb.chunk.css",
-    "static/js/main.6deb3e8b.chunk.js"
+    "static/css/main.e20b23ae.chunk.css",
+    "static/js/main.d4130e57.chunk.js"
   ]
 }
